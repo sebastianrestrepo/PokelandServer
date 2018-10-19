@@ -39,9 +39,13 @@ public class ControlServidor implements Observer, Runnable {
 				ControlCliente nuevoCliente = new ControlCliente(s);
 				nuevoCliente.addObserver(this);
 				clientes.add(nuevoCliente);
-
+				
+				clientes.get(clientes.size() - 1).enviarMensaje(new Mensaje(null, clientes.size()));
+				
 				Thread t = new Thread(nuevoCliente);
 				t.start();
+				
+				System.out.println("nuevoCliente:" + nuevoCliente.toString());
 			}
 		}
 	}

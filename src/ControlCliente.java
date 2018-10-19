@@ -62,7 +62,7 @@ public class ControlCliente extends Observable implements Runnable {
 				if (atraparMensaje instanceof Mensaje) {
 					Mensaje mensaje = (Mensaje) atraparMensaje;
 
-					System.out.println("Llegó un mensaje: " + mensaje.getM());
+					System.out.println("Llegó un mensaje: " + mensaje.getM() + ", " + mensaje.getIndex());
 					/// if(mensaje.equals("arriba"));
 					setChanged();
 					notifyObservers(mensaje);
