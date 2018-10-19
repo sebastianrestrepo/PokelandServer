@@ -1,9 +1,10 @@
 
 public class PokelandServerMain {
 
-	public static void main(String[] args) {
-		
-	}
+	private static Logica log;
 	
+	public static void main(String[] args) {
+		log = new Logica();
+	}
 	
 }
