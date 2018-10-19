@@ -4,8 +4,9 @@ public class Mensaje implements Serializable {
 
 	private String m;
 	private int index;
+	int equipo;
 
-	public Mensaje(String m, int index) {
+	public Mensaje(String m, int index, int equipo) {
 		this.m = m; 
 		this.index = index;
 	}
@@ -24,6 +25,14 @@ public class Mensaje implements Serializable {
 
 	public void setIndex(int index) {
 		this.index = index;
+	}
+	
+	public int getEquipo() {
+		return equipo;
+	}
+
+	public void setEquipo(int index) {
+		this.equipo = equipo;
 	}
 	
 }
