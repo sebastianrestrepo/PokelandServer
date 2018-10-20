@@ -1,10 +1,19 @@
+import processing.core.PApplet;
 
-public class PokelandServerMain {
+public class PokelandServerMain extends PApplet {
 
-	private static Logica log;
+	private Logica log;
 	
 	public static void main(String[] args) {
-		log = new Logica();
+		PApplet.main("PokelandServerMain");
 	}
 	
+	public void setup() {
+		log = new Logica(this);
+	}
+	
+	public void draw() {
+		log.pintar();
+	}
+
 }

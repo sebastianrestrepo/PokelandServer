@@ -1,21 +1,28 @@
 import java.util.Observable;
+import java.util.Observer;
 
-public class Logica extends Observable {
+import processing.core.PApplet;
+
+public class Logica extends Observable implements Observer{
 
 	private ControlCliente cs;
 	private ControlServidor servidor;
+	private PApplet app;
 
-	public Logica() {
-		// Se inicia el Servidor
-		servidor = new ControlServidor(this);
+	public Logica(PApplet app) {
+		this.setApp(app);
+		servidor = new ControlServidor();
 		new Thread(servidor).start();
 	}
 
-	public synchronized void update(Observable o, Object arg) {
+	public void pintar () {
+		
+	}
+	public  void update(Observable o, Object arg) {
 
 	}
 
-	// GETTERS Y SETTERS
+	//---------------------GETTERS Y SETTERS
 	public ControlCliente getCs() {
 		return cs;
 	}
@@ -24,4 +31,12 @@ public class Logica extends Observable {
 		this.cs = cs;
 	}
 
+	public PApplet getApp() {
+		return app;
+	}
+
+	public void setApp(PApplet app) {
+		this.app = app;
+	}
+	
 }

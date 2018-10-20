@@ -36,7 +36,6 @@ public class CreadorClientes extends Observable implements Runnable {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-
 		}
 
 	}
