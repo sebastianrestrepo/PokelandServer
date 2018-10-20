@@ -10,7 +10,7 @@ public class ControlServidor implements Observer, Runnable {
 	private CreadorClientes creadorClientes;
 	private ArrayList<ControlCliente> clientes;
 	private int jugadoresListos;
-	private Mensaje m;
+	private int estacion;
 
 	private List<Integer> turnos = new ArrayList<Integer>(3);
 	private int indexTurn;
@@ -21,6 +21,7 @@ public class ControlServidor implements Observer, Runnable {
 		creadorClientes.addObserver(this);
 		jugadoresListos = 0;
 		indexTurn = 0;
+		estacion = 0;
 	}
 
 	@Override
@@ -44,7 +45,7 @@ public class ControlServidor implements Observer, Runnable {
 					int tempTurno = sigTurno();
 					for (int i = 0; i < clientes.size(); i++) {
 
-						clientes.get(i).enviarMensaje(new Mensaje("turno", tempTurno, 1));
+						clientes.get(i).enviarMensaje(new Mensaje("turno", tempTurno, estacion));
 						System.out.println("Turno enviado" + tempTurno);
 						jugadoresListos = 5;
 					}
@@ -115,33 +116,28 @@ public class ControlServidor implements Observer, Runnable {
 				//
 				//
 				if (m.getM().equalsIgnoreCase("turnoterminado")) {
+					
 					System.out.println("indexTurn" + indexTurn);
 					if (indexTurn <= 2) {
 						indexTurn++;
+						
 						int tempTurno = sigTurno();
 						for (int i = 0; i < clientes.size(); i++) {
 							clientes.get(i).enviarMensaje(new Mensaje("turno", tempTurno, 1));
-							System.out.println("Turno enviado" + tempTurno);
+							System.out.println("Turno enviado" + tempTurno + "estacion" + estacion);
 						}
 						if (indexTurn == 3) {
 							indexTurn = -1;
 							sortTurnos();
-						}
-					} else {
-						indexTurn++;
-						int tempTurno = sigTurno();
-						for (int i = 0; i < clientes.size(); i++) {
-							clientes.get(i).enviarMensaje(new Mensaje("turno", tempTurno, 1));
-							System.out.println("Turno enviado" + tempTurno);
+							estacion++;
 						}
 					}
-					System.out.println("Jugadores listos" + jugadoresListos);
-
 				}
+				System.out.println("Jugadores listos" + jugadoresListos);
 
 			}
-		}
 
+		}
 	}
 
 }

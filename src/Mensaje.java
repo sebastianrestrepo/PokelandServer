@@ -32,7 +32,7 @@ public class Mensaje implements Serializable {
 	}
 
 	public void setEquipo(int index) {
-		this.equipo = equipo;
+		this.equipo = index;
 	}
 	
 }
