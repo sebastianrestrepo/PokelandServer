@@ -1,6 +1,3 @@
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Observable;
@@ -10,10 +7,8 @@ public class ControlServidor implements Observer, Runnable {
 
 	private CreadorClientes creadorClientes;
 	private ArrayList<ControlCliente> clientes;
-	private Logica log;
 
-	public ControlServidor(Logica log) {
-		this.log = log;
+	public ControlServidor() {
 		clientes = new ArrayList<>();
 		creadorClientes = new CreadorClientes();
 		creadorClientes.addObserver(this);
@@ -40,14 +35,23 @@ public class ControlServidor implements Observer, Runnable {
 				nuevoCliente.addObserver(this);
 				clientes.add(nuevoCliente);
 				
-				clientes.get(clientes.size() - 1).enviarMensaje(new Mensaje(null, clientes.size(), 1));
+				clientes.get(clientes.size() - 1).enviarMensaje(new Mensaje("equipo", clientes.size(), 1));
 				
 				Thread t = new Thread(nuevoCliente);
 				t.start();
 				
 				System.out.println("nuevoCliente:" + nuevoCliente.toString());
 			}
+			
+			if (clientes.size() >= 4) {
+				for (int i = 0; i < clientes.size(); i++) {
+					clientes.get(i).enviarMensaje(new Mensaje("start", clientes.size(), 1));
+
+				}
+			}
+			
 		}
+	
 	}
 
 }

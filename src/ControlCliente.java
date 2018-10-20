@@ -41,14 +41,13 @@ public class ControlCliente extends Observable implements Runnable {
 
 	@Override
 	public void run() {
-		while (true) {
+		while (conectado) {
 			try {
 				Thread.sleep(200);
-
 				recibirMensaje();
 
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
+			
 				e.printStackTrace();
 			}
 		}
@@ -57,13 +56,11 @@ public class ControlCliente extends Observable implements Runnable {
 	public void recibirMensaje() {
 		if (conectado) {
 			try {
-				// System.out.println("[Esperando mensaje]");
 				atraparMensaje = entrada.readObject();
 				if (atraparMensaje instanceof Mensaje) {
 					Mensaje mensaje = (Mensaje) atraparMensaje;
 
 					System.out.println("Llegó un mensaje: " + mensaje.getM() + ", " + mensaje.getIndex() + " Equipo: " + mensaje.getEquipo());
-					/// if(mensaje.equals("arriba"));
 					setChanged();
 					notifyObservers(mensaje);
 					clearChanged();
