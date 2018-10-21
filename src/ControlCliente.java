@@ -47,7 +47,7 @@ public class ControlCliente extends Observable implements Runnable {
 				recibirMensaje();
 
 			} catch (InterruptedException e) {
-			
+
 				e.printStackTrace();
 			}
 		}
@@ -60,12 +60,13 @@ public class ControlCliente extends Observable implements Runnable {
 				if (atraparMensaje instanceof Mensaje) {
 					Mensaje mensaje = (Mensaje) atraparMensaje;
 
-					System.out.println("Llegó un mensaje: " + mensaje.getM() + ", " + mensaje.getIndex() + " Equipo: " + mensaje.getEquipo());
+					System.out.println("Llegó un mensaje: " + mensaje.getM() + ", " + mensaje.getIndex() + " Equipo: "
+							+ mensaje.getEquipo());
 					setChanged();
 					notifyObservers(mensaje);
 					clearChanged();
 				}
-		
+
 			} catch (ClassNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -77,14 +78,26 @@ public class ControlCliente extends Observable implements Runnable {
 	}
 
 	public void enviarMensaje(Object obj) {
-		try {
-			Mensaje m = (Mensaje) obj;
-			salida.writeObject(m);
-			salida.flush();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		Thread t = new Thread(new Runnable() {
+
+			public void run() {
+
+				try {
+					Mensaje m = (Mensaje) obj;
+					if (conectado) {
+						if (s.isConnected()) {
+							salida.writeObject(m);
+							System.out.println("RESERVA SE ENVIA COMOOOOOOOOOOOO " + m.getEquipo());
+							salida.flush();
+						}
+					}
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
+		t.start();
 	}
 
 	// ----------GETTERS Y SETTERS--------//
