@@ -10,7 +10,7 @@ public class ControlServidor implements Observer, Runnable {
 	private CreadorClientes creadorClientes;
 	private ArrayList<ControlCliente> clientes;
 	private int jugadoresListos;
-	private int estacion, ronda;
+	private int estacion, ronda, totalturnos;
 
 	private List<Integer> turnos = new ArrayList<Integer>(3);
 	private int indexTurn;
@@ -20,8 +20,10 @@ public class ControlServidor implements Observer, Runnable {
 		creadorClientes = new CreadorClientes();
 		creadorClientes.addObserver(this);
 		jugadoresListos = 0;
-		indexTurn = 0;
+		indexTurn = -1;
 		estacion = 0;
+		totalturnos = -1;
+		ronda = 0;
 	}
 
 	@Override
@@ -42,6 +44,7 @@ public class ControlServidor implements Observer, Runnable {
 				if (jugadoresListos == 4) {
 					orderPlayers();
 					sortTurnos();
+					indexTurn++;
 					int tempTurno = sigTurno();
 					for (int i = 0; i < clientes.size(); i++) {
 
@@ -69,6 +72,7 @@ public class ControlServidor implements Observer, Runnable {
 	}
 
 	public int sigTurno() {
+
 		return turnos.get(indexTurn);
 	}
 
@@ -116,26 +120,31 @@ public class ControlServidor implements Observer, Runnable {
 				//
 				//
 				if (m.getM().equalsIgnoreCase("turnoterminado")) {
-					
-					System.out.println("indexTurn" + indexTurn);
+
 					if (indexTurn <= 2) {
 						indexTurn++;
-						
 						int tempTurno = sigTurno();
 						for (int i = 0; i < clientes.size(); i++) {
 							clientes.get(i).enviarMensaje(new Mensaje("turno", tempTurno, 1));
 						}
-						if (indexTurn == 3) {
-							calcularestacion();
-							sortTurnos();
-							nuevoMes();
-							indexTurn = -1;
+						System.out.println("Ronda: " + ronda + "Estacion " + estacion);
 
+					} else if (indexTurn == 3) {
+						System.out.println("NUEVA RONDA" + totalturnos);
+						System.out.println("Ronda: " + ronda + "Estacion " + estacion);
+						sortTurnos();
+						calcularestacion();
+						nuevoMes();
+
+						indexTurn = 0;
+						int tempTurno2 = sigTurno();
+						for (int i = 0; i < clientes.size(); i++) {
+							clientes.get(i).enviarMensaje(new Mensaje("turno", tempTurno2, 1));
 						}
+
 					}
 				}
 				System.out.println("Mes" + estacion);
-				System.out.println("Ronda: " + ronda + "Estacion " + estacion);
 
 			}
 
@@ -143,14 +152,12 @@ public class ControlServidor implements Observer, Runnable {
 	}
 
 	private void calcularestacion() {
-		System.out.println("Ronda: " + ronda + "Estacion " + estacion);
-
 		ronda++;
-		if (ronda%3 == 0) {
+		if (ronda % 3 == 0) {
 			estacion++;
-			ronda=0;
-		}
+			ronda = 0;
 
+		}
 	}
 
 	private void nuevoMes() {
@@ -158,7 +165,7 @@ public class ControlServidor implements Observer, Runnable {
 		for (int i = 0; i < clientes.size(); i++) {
 			clientes.get(i).enviarMensaje(new Mensaje("nuevoMes", mes, 1));
 		}
-		System.out.println("Empieza Nuevo Mes!" );
+		System.out.println("Empieza Nuevo Mes!");
 
 	}
 
