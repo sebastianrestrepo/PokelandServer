@@ -25,10 +25,8 @@ public class ControlCliente extends Observable implements Runnable {
 		conectado = false;
 
 		System.out.println("[Conectado Socket...]");
-		System.out.println("[Enlazando flujos...");
 		try {
 			salida = new ObjectOutputStream(s.getOutputStream());
-			System.out.println("LOL");
 			entrada = new ObjectInputStream(s.getInputStream());
 			System.out.println("...Enlace completo :)]");
 			conectado = true;
@@ -45,9 +43,7 @@ public class ControlCliente extends Observable implements Runnable {
 			try {
 				Thread.sleep(200);
 				recibirMensaje();
-
 			} catch (InterruptedException e) {
-
 				e.printStackTrace();
 			}
 		}
@@ -59,9 +55,6 @@ public class ControlCliente extends Observable implements Runnable {
 				atraparMensaje = entrada.readObject();
 				if (atraparMensaje instanceof Mensaje) {
 					Mensaje mensaje = (Mensaje) atraparMensaje;
-
-					System.out.println("Llegó un mensaje: " + mensaje.getM() + ", " + mensaje.getIndex() + " Equipo: "
-							+ mensaje.getEquipo());
 					setChanged();
 					notifyObservers(mensaje);
 					clearChanged();
@@ -87,12 +80,10 @@ public class ControlCliente extends Observable implements Runnable {
 					if (conectado) {
 						if (s.isConnected()) {
 							salida.writeObject(m);
-							System.out.println("RESERVA SE ENVIA COMOOOOOOOOOOOO " + m.getEquipo());
 							salida.flush();
 						}
 					}
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
