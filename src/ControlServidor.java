@@ -16,7 +16,7 @@ public class ControlServidor implements Observer, Runnable {
 	private CreadorClientes creadorClientes;
 	private ArrayList<ControlCliente> clientes;
 	private int jugadoresListos;
-	private int estacion, ronda, totalturnos;
+	private int mes, estacion, ronda, totalturnos;
 	private int bayasJug1, bayasJug2, bayasJug3, bayasJug4;
 	private int reservaBayasGeneralMes;
 	private int arbolesPlantadosGen;
@@ -35,7 +35,8 @@ public class ControlServidor implements Observer, Runnable {
 		creadorClientes.addObserver(this);
 		jugadoresListos = 0;
 		indexTurn = -2;
-		estacion = 0;
+		mes = 0;
+		estacion= 0;
 		totalturnos = -1;
 		ronda = 0;
 		arbolesPlantadosGen = 0;
@@ -88,14 +89,17 @@ public class ControlServidor implements Observer, Runnable {
 	}
 
 	private void iniciarRonda() {
-		indexTurn = 0;
 		orderPlayers();
 		sortTurnos();
-		System.out.println("Turno enviado Inicial" + sigTurno() + "/" + indexTurn);
+		indexTurn = 0;
+		for (int i = 0; i < turnos.size(); i++) {
+			System.out.println("Arreglo de turnos" +  turnos.get(i).intValue() + "/" + indexTurn);
+		}
 		
 	}
 
 	public void orderPlayers() {
+		turnos.clear();
 		for (int i = 0; i < 4; i++)
 			turnos.add(i);
 	}
@@ -135,7 +139,6 @@ public class ControlServidor implements Observer, Runnable {
 				//
 				// Todos los jugadores vieron las instrucciones, asignar turno
 				Mensaje m = (Mensaje) arg;
-				System.out.println("Jugadores listos" + jugadoresListos);
 
 				if (m.getM().equalsIgnoreCase("listo")) {
 					jugadoresListos++;
@@ -148,34 +151,61 @@ public class ControlServidor implements Observer, Runnable {
 				if (m.getM().equalsIgnoreCase("turnoterminado")) {
 					getTurnInfo(m);
 					indexTurn++;
+					System.out.println("Index del Array Turnos" + indexTurn);
 					if (reservaBayasGeneralMes <= 0) {
 						reservaBayasGeneralMes = 0;
 						reservaBayasGeneralMes = 0;
 					}
-					if (indexTurn >= 4) {
-						iniciarRonda();
-						reservaBayasGeneralMes = sigMesReserva();
-						System.out.println("Turno enviado MES" + sigTurno() + "/" + indexTurn);
-						calcularestacion();
-						nuevoMes(sigTurno(), reservaBayasGeneralMes);
-					} else {
+					if (indexTurn<4) {
 						for (int i = 0; i < clientes.size(); i++) {
 							clientes.get(i).enviarMensaje(
-									new Mensaje("turno", sigTurno(), estacion, reservaBayasGeneralMes + ",nada"));
+									new Mensaje("turno", sigTurno(), estacion, reservaBayasGeneralMes + ""));
 						}
-						System.out.println("Turno enviado NORMI" + sigTurno() + "/" + indexTurn);
-					}
+						System.out.println("Turno enviado" + sigTurno() + "/ Index " + indexTurn);
+						
+					} else if (indexTurn >= 4) {
+						System.out.println("Empezar nuevo Mes/Ronda");
+						iniciarRonda();
+						reservaBayasGeneralMes = sigMesReserva();
+						nuevoMes(sigTurno(),calcularestacion(), reservaBayasGeneralMes);
+					}  
+					
 				}
 			}
 		}
 	}
 
 
-	private void nuevoMes(int turno, int reserva) {
+	private int sigMesReserva() {
+		
+		switch (estacion) {
+		case 0:
+			return 250 + arbolesPlantadosGen * 5;
+		case 1:
+			return 200 + arbolesPlantadosGen * 4;
+		case 2:
+			return 120 + arbolesPlantadosGen * 3;
+		case 3:
+			return 100 + arbolesPlantadosGen * 2;
 
+		default:
+			return 0;
+		}
+	}
+
+	private int calcularestacion() {
+		ronda++;
+		mes++;
+		if (ronda % 3 == 0) {
+			estacion++;
+			ronda = 0;
+		}
+		return estacion;
+	}
+	private void nuevoMes(int _turno, int _estacion, int _reserva) {
 		for (int i = 0; i < clientes.size(); i++) {
 			clientes.get(i)
-					.enviarMensaje(new Mensaje("turno", turno, estacion, reserva + ",mes"));
+					.enviarMensaje(new Mensaje("turno", _turno, _estacion, _reserva+""));
 		}
 		System.out.println("Empieza Nuevo Mes!");
 	}
@@ -224,33 +254,6 @@ public class ControlServidor implements Observer, Runnable {
 		default:
 			break;
 		}
-		
-		//if(infoTurnos.size() > 3) {
-			/*switch (m.getEquipo()) {
-			case 0:
-				System.out.println("LALALALALALALA");
-				infoFinales.add(new String("" + "LALALALALA" + ""));
-				crearTxtFinales(m.getEquipo());
-				break;
-			case 1:
-				System.out.println("LALALALALALALA");
-				infoFinales1.add(new String("" + "LALALALALA" + ""));
-				crearTxtFinales(m.getEquipo());
-				break;
-			case 2:
-				System.out.println("LALALALALALALA");
-				infoFinales2.add(new String("" + "LALALALALA" + ""));
-				crearTxtFinales(m.getEquipo());
-				break;
-			case 3:
-				System.out.println("LALALALALALALA");
-				infoFinales3.add(new String("" + "LALALALALA" + ""));
-				crearTxtFinales(m.getEquipo());
-				break;
-			default:
-				break;
-			}
-		//}*/
 		
 		return;
 
@@ -352,28 +355,5 @@ public class ControlServidor implements Observer, Runnable {
 	}*/
 	
 
-	private int sigMesReserva() {
-		switch (estacion) {
-		case 0:
-			return 250 + arbolesPlantadosGen * 5;
-		case 1:
-			return 200 + arbolesPlantadosGen * 4;
-		case 2:
-			return 120 + arbolesPlantadosGen * 3;
-		case 3:
-			return 100 + arbolesPlantadosGen * 2;
-
-		default:
-			return 0;
-		}
-	}
-
-	private void calcularestacion() {
-		ronda++;
-		if (ronda % 3 == 0) {
-			estacion++;
-			ronda = 0;
-		}
-	}
 
 }
