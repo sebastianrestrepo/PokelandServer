@@ -29,7 +29,7 @@ public class ControlServidor implements Observer, Runnable {
 	private ArrayList<String> infoFinales, infoFinales1, infoFinales2, infoFinales3;
 
 	public ControlServidor() {
-		reservaBayasGeneralMes = 250;
+		reservaBayasGeneralMes = 80;
 		clientes = new ArrayList<>();
 		creadorClientes = new CreadorClientes();
 		creadorClientes.addObserver(this);
@@ -179,13 +179,13 @@ public class ControlServidor implements Observer, Runnable {
 
 		switch (estacion) {
 		case 0:
-			return 250 + arbolesPlantadosGen * 5;
+			return 80 + arbolesPlantadosGen * 5;
 		case 1:
-			return 200 + arbolesPlantadosGen * 4;
+			return 50 + arbolesPlantadosGen * 4;
 		case 2:
-			return 120 + arbolesPlantadosGen * 3;
+			return 25 + arbolesPlantadosGen * 3;
 		case 3:
-			return 100 + arbolesPlantadosGen * 2;
+			return 15 + arbolesPlantadosGen * 2;
 
 		default:
 			return 0;

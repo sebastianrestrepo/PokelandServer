@@ -10,6 +10,7 @@ public class CreadorClientes extends Observable implements Runnable {
 	public CreadorClientes() {
 		try {
 			ss = new ServerSocket(PUERTO);
+			System.out.println(InetAddress.getLocalHost());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
