@@ -1,3 +1,7 @@
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,6 +24,9 @@ public class ControlServidor implements Observer, Runnable {
 
 	private List<Integer> turnos = new ArrayList<Integer>(3);
 	private int indexTurn;
+	
+	private ArrayList<String> infoTurnos, infoTurnos1, infoTurnos2, infoTurnos3;
+	private ArrayList<String> infoFinales, infoFinales1, infoFinales2, infoFinales3;
 
 	public ControlServidor() {
 		reservaBayasGeneralMes = 250;
@@ -33,6 +40,16 @@ public class ControlServidor implements Observer, Runnable {
 		ronda = 0;
 		arbolesPlantadosGen = 0;
 		turnoinicial = false;
+		//
+		infoTurnos = new ArrayList<>();
+		infoTurnos1 = new ArrayList<>();
+		infoTurnos2 = new ArrayList<>();
+		infoTurnos3 = new ArrayList<>();
+		//
+		infoFinales = new ArrayList<>();
+		infoFinales1 = new ArrayList<>();
+		infoFinales2 = new ArrayList<>();
+		infoFinales3 = new ArrayList<>();
 	}
 
 	@Override
@@ -165,41 +182,174 @@ public class ControlServidor implements Observer, Runnable {
 
 	private void getTurnInfo(Mensaje m) {
 		Mensaje _m = (Mensaje) m;
-
 		String[] tempValue = PApplet.splitTokens(_m.getValor(), ",");
-
 		int tempBayasAlmacenadas = Integer.parseInt(tempValue[0]);
 		int tempArbolesPlantados = Integer.parseInt(tempValue[1]);
 		int tempPokeAdoptados = Integer.parseInt(tempValue[2]);
 		int tempBayasTurno = Integer.parseInt(tempValue[3]);
 		int tempArbolesTurno = Integer.parseInt(tempValue[4]);
 		int tempPokeTurno = Integer.parseInt(tempValue[5]);
-
-		arbolesPlantadosGen = arbolesPlantadosGen + tempArbolesTurno;
+		arbolesPlantadosGen = arbolesPlantadosGen + tempArbolesPlantados - 1;
 		reservaBayasGeneralMes = reservaBayasGeneralMes - tempBayasTurno;
-		System.out.println("reservaBayasGeneralMes ----------- " + reservaBayasGeneralMes + "/" + tempBayasTurno);
 		System.out.println("Bayas almacenadas " + tempValue[0] + "Arboles plantados" + tempValue[1]
 				+ "Pokemon Adoptados " + tempValue[2] + "Bayas del turno " + tempValue[3] + "Arboles del Turno"
 				+ tempValue[4] + "Pokes del Turno " + tempValue[5]);
+		
 		switch (m.getEquipo()) {
 		case 0:
 			System.out.println("Acabe turno equipo amarillo");
+			infoTurnos.add(new String("Bayas almacenadas " + tempBayasAlmacenadas + " Arboles plantados" + tempArbolesPlantados
+					+ " Pokemon Adoptados " + tempPokeAdoptados + " Bayas del turno " + tempBayasTurno + " Arboles del Turno"
+					+ tempArbolesTurno + "Pokes del Turno " + tempPokeTurno));
+			crearTxtPokeNum(m.getEquipo());
 			break;
 		case 1:
 			System.out.println("Acabe turno equipo rojo");
+			infoTurnos1.add(new String("Bayas almacenadas " + tempBayasAlmacenadas + " Arboles plantados" + tempArbolesPlantados
+					+ " Pokemon Adoptados " + tempPokeAdoptados + " Bayas del turno " + tempBayasTurno + " Arboles del Turno"
+					+ tempArbolesTurno + "Pokes del Turno " + tempPokeTurno));			crearTxtPokeNum(m.getEquipo());
 			break;
 		case 2:
 			System.out.println("Acabe turno equipo verde");
+			infoTurnos2.add(new String("Bayas almacenadas " + tempBayasAlmacenadas + " Arboles plantados" + tempArbolesPlantados
+					+ " Pokemon Adoptados " + tempPokeAdoptados + " Bayas del turno " + tempBayasTurno + " Arboles del Turno"
+					+ tempArbolesTurno + "Pokes del Turno " + tempPokeTurno));			crearTxtPokeNum(m.getEquipo());
 			break;
 		case 3:
 			System.out.println("Acabe turno equipo azul");
+			infoTurnos3.add(new String("Bayas almacenadas " + tempBayasAlmacenadas + " Arboles plantados" + tempArbolesPlantados
+					+ " Pokemon Adoptados " + tempPokeAdoptados + " Bayas del turno " + tempBayasTurno + " Arboles del Turno"
+					+ tempArbolesTurno + " Pokes del Turno " + tempPokeTurno));			crearTxtPokeNum(m.getEquipo());
 			break;
 		default:
 			break;
 		}
+		
+		//if(infoTurnos.size() > 3) {
+			/*switch (m.getEquipo()) {
+			case 0:
+				System.out.println("LALALALALALALA");
+				infoFinales.add(new String("" + "LALALALALA" + ""));
+				crearTxtFinales(m.getEquipo());
+				break;
+			case 1:
+				System.out.println("LALALALALALALA");
+				infoFinales1.add(new String("" + "LALALALALA" + ""));
+				crearTxtFinales(m.getEquipo());
+				break;
+			case 2:
+				System.out.println("LALALALALALALA");
+				infoFinales2.add(new String("" + "LALALALALA" + ""));
+				crearTxtFinales(m.getEquipo());
+				break;
+			case 3:
+				System.out.println("LALALALALALALA");
+				infoFinales3.add(new String("" + "LALALALALA" + ""));
+				crearTxtFinales(m.getEquipo());
+				break;
+			default:
+				break;
+			}
+		//}*/
+		
 		return;
 
 	}
+
+	public void crearTxtPokeNum(int equipo) {
+		try {
+			File archivo = new File("data/PokemonesTurno/usuario_" + equipo + ".txt");
+			archivo.createNewFile();
+			BufferedWriter bw = new BufferedWriter(new FileWriter(archivo));
+
+			
+			System.out.println("Archivo creado");
+			
+			switch(equipo) {
+			case 0:
+				for (int j = 0; j < infoTurnos.size(); j++) {
+					bw.write(infoTurnos.get(j));
+					bw.newLine();
+				}
+				break;
+			case 1:
+				for (int j = 0; j < infoTurnos1.size(); j++) {
+					bw.write(infoTurnos1.get(j));
+					bw.newLine();
+				}
+				break;
+			case 2:
+				for (int j = 0; j < infoTurnos2.size(); j++) {
+					bw.write(infoTurnos2.get(j));
+					bw.newLine();
+				}
+				break;
+			case 3:
+				for (int j = 0; j < infoTurnos3.size(); j++) {
+					bw.write(infoTurnos3.get(j));
+					bw.newLine();
+				}
+				break;
+			default:
+				break;
+			}
+
+			bw.flush();
+			bw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/*public void crearTxtFinales(int equipo) {
+		try {
+			File archivo = new File("data/ResultadosFinales/usuario_" + equipo + ".txt");
+			archivo.createNewFile();
+			BufferedWriter bw = new BufferedWriter(new FileWriter(archivo));
+
+			
+			System.out.println("Archivo creado");
+			
+				switch(equipo) {
+				case 0:
+					for (int j = 0; j < infoFinales.size(); j++) {
+						bw.write(infoFinales.get(j));
+						bw.newLine();
+					}
+					break;
+				case 1:
+					for (int j = 0; j < infoFinales1.size(); j++) {
+						bw.write(infoFinales1.get(j));
+						bw.newLine();
+					}
+					break;
+				case 2:
+					for (int j = 0; j < infoFinales2.size(); j++) {
+						bw.write(infoFinales2.get(j));
+						bw.newLine();
+					}
+					break;
+				case 3:
+					for (int j = 0; j < infoFinales3.size(); j++) {
+						bw.write(infoFinales3.get(j));
+						bw.newLine();
+					}
+					break;
+				default:
+					break;
+				}
+				
+				
+			bw.flush();
+			bw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}*/
 	
 
 	private int sigMesReserva() {
