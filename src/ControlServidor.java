@@ -16,6 +16,7 @@ public class ControlServidor implements Observer, Runnable {
 	private int bayasJug1, bayasJug2, bayasJug3, bayasJug4;
 	private int reservaBayasGeneralMes;
 	private int arbolesPlantadosGen;
+	private boolean turnoinicial;
 
 	private List<Integer> turnos = new ArrayList<Integer>(3);
 	private int indexTurn;
@@ -31,6 +32,7 @@ public class ControlServidor implements Observer, Runnable {
 		totalturnos = -1;
 		ronda = 0;
 		arbolesPlantadosGen = 0;
+		turnoinicial = false;
 	}
 
 	@Override
@@ -48,25 +50,19 @@ public class ControlServidor implements Observer, Runnable {
 					}
 				}
 				if (jugadoresListos == 4) {
-					if (indexTurn == -2) {
-						orderPlayers();
-						sortTurnos();
-						indexTurn=0;
-						
-						int tempTurno = sigTurno();
-						System.out.println("Turno enviado NORMI" + tempTurno + "/" + indexTurn);
-						int tempReserva = reservaBayasGeneralMes;
-						for (int i = 0; i < clientes.size(); i++) {
-							System.out.println("RESERVA esta en " + reservaBayasGeneralMes);
-							clientes.get(i).enviarMensaje(new Mensaje("turno", tempTurno, tempReserva, reservaBayasGeneralMes + ""));
-							System.out.println("Turno enviado" + tempTurno);
-							
-						}
-						jugadoresListos = 5;
-					}
-					
+					turnoinicial = true;
 				}
 
+				if (turnoinicial) {
+					iniciarRonda();
+					for (int i = 0; i < clientes.size(); i++) {
+						clientes.get(i).enviarMensaje(
+								new Mensaje("turno", sigTurno(), estacion, reservaBayasGeneralMes + ",nada"));
+						System.out.println("Turno enviado Inicial" + sigTurno());
+					}
+					jugadoresListos=5;
+					turnoinicial = false;
+				}
 				Thread.sleep(2000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
@@ -74,8 +70,15 @@ public class ControlServidor implements Observer, Runnable {
 		}
 	}
 
-	public void orderPlayers() {
+	private void iniciarRonda() {
 		indexTurn = 0;
+		orderPlayers();
+		sortTurnos();
+		System.out.println("Turno enviado Inicial" + sigTurno() + "/" + indexTurn);
+		
+	}
+
+	public void orderPlayers() {
 		for (int i = 0; i < 4; i++)
 			turnos.add(i);
 	}
@@ -85,7 +88,6 @@ public class ControlServidor implements Observer, Runnable {
 	}
 
 	public int sigTurno() {
-
 		return turnos.get(indexTurn);
 	}
 
@@ -128,61 +130,54 @@ public class ControlServidor implements Observer, Runnable {
 				// Cuando alguien termina un turno
 				if (m.getM().equalsIgnoreCase("turnoterminado")) {
 					getTurnInfo(m);
-					if (indexTurn== -1) {
-						indexTurn=0;
-						int tempTurno = sigTurno();
-						if (reservaBayasGeneralMes<=0) {
-							reservaBayasGeneralMes = 0;
-							reservaBayasGeneralMes= 0;
-						}
-						for (int i = 0; i < clientes.size(); i++) {
-							clientes.get(i).enviarMensaje(new Mensaje("turno", tempTurno, estacion,  reservaBayasGeneralMes + ""));
-						}
-						System.out.println("Turno enviado INICIAL MES" + tempTurno + "/" + indexTurn);
+					indexTurn++;
+					if (reservaBayasGeneralMes <= 0) {
+						reservaBayasGeneralMes = 0;
+						reservaBayasGeneralMes = 0;
 					}
-					if (indexTurn> 0 && indexTurn <= 2) {		
-						indexTurn++;
-						int tempTurno = sigTurno();
-						if (reservaBayasGeneralMes<=0) {
-							reservaBayasGeneralMes = 0;
-							reservaBayasGeneralMes= 0;
-						}
-						for (int i = 0; i < clientes.size(); i++) {
-							clientes.get(i).enviarMensaje(new Mensaje("turno", tempTurno, estacion,  reservaBayasGeneralMes + ""));
-							
-						}
-						System.out.println("Turno enviado NORMI" + tempTurno + "/" + indexTurn);
-					}  else if (indexTurn == 3) {
+					if (indexTurn >= 4) {
+						iniciarRonda();
 						reservaBayasGeneralMes = sigMesReserva();
-						sortTurnos();
-						indexTurn = -1;
-						System.out.println("Turno enviado MES" + 0 + "/" + indexTurn);
+						System.out.println("Turno enviado MES" + sigTurno() + "/" + indexTurn);
 						calcularestacion();
-						nuevoMes(0, reservaBayasGeneralMes);
+						nuevoMes(sigTurno(), reservaBayasGeneralMes);
+					} else {
+						for (int i = 0; i < clientes.size(); i++) {
+							clientes.get(i).enviarMensaje(
+									new Mensaje("turno", sigTurno(), estacion, reservaBayasGeneralMes + ",nada"));
+						}
+						System.out.println("Turno enviado NORMI" + sigTurno() + "/" + indexTurn);
 					}
 				}
-				System.out.println("Mes " + estacion);
-
 			}
-
 		}
+	}
+
+
+	private void nuevoMes(int turno, int reserva) {
+
+		for (int i = 0; i < clientes.size(); i++) {
+			clientes.get(i)
+					.enviarMensaje(new Mensaje("turno", turno, estacion, reserva + ",mes"));
+		}
+		System.out.println("Empieza Nuevo Mes!");
 	}
 
 	private void getTurnInfo(Mensaje m) {
 		Mensaje _m = (Mensaje) m;
-		
+
 		String[] tempValue = PApplet.splitTokens(_m.getValor(), ",");
-		
+
 		int tempBayasAlmacenadas = Integer.parseInt(tempValue[0]);
 		int tempArbolesPlantados = Integer.parseInt(tempValue[1]);
 		int tempPokeAdoptados = Integer.parseInt(tempValue[2]);
 		int tempBayasTurno = Integer.parseInt(tempValue[3]);
 		int tempArbolesTurno = Integer.parseInt(tempValue[4]);
 		int tempPokeTurno = Integer.parseInt(tempValue[5]);
-		
+
 		arbolesPlantadosGen = arbolesPlantadosGen + tempArbolesTurno;
 		reservaBayasGeneralMes = reservaBayasGeneralMes - tempBayasTurno;
-		System.out.println("reservaBayasGeneralMes ----------- " + reservaBayasGeneralMes + "/" + tempBayasTurno );
+		System.out.println("reservaBayasGeneralMes ----------- " + reservaBayasGeneralMes + "/" + tempBayasTurno);
 		System.out.println("Bayas almacenadas " + tempValue[0] + "Arboles plantados" + tempValue[1]
 				+ "Pokemon Adoptados " + tempValue[2] + "Bayas del turno " + tempValue[3] + "Arboles del Turno"
 				+ tempValue[4] + "Pokes del Turno " + tempValue[5]);
@@ -205,6 +200,7 @@ public class ControlServidor implements Observer, Runnable {
 		return;
 
 	}
+	
 
 	private int sigMesReserva() {
 		switch (estacion) {
@@ -228,14 +224,6 @@ public class ControlServidor implements Observer, Runnable {
 			estacion++;
 			ronda = 0;
 		}
-	}
-
-	private void nuevoMes(int tempTurno2, int tempReserva2) {
-		
-		for (int i = 0; i < clientes.size(); i++) {
-			clientes.get(i).enviarMensaje(new Mensaje("turnoMes", tempTurno2 ,estacion,  Integer.toString(tempReserva2)));
-		}
-		System.out.println("Empieza Nuevo Mes!");
 	}
 
 }
